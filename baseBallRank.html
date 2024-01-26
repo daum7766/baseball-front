@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking Page</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            text-align: center;
+        }
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            opacity: 0.9;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #backButton {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        #backButton:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Ranking Page</h1>
+
+<table id="rankingTable">
+    <tr>
+        <th>Rank</th>
+        <th>Name</th>
+        <th>Count</th>
+        <th>Clear Time</th>
+    </tr>
+</table>
+
+<button id="backButton" onclick="goBack()">뒤로가기</button>
+
+<script>
+    // API 요청 주소
+    const apiUrl = 'http://baseball-mungto.koyeb.app/baseball/rank';
+
+    // API를 비동기적으로 요청하고 테이블에 데이터 추가
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            const rankingTable = document.getElementById("rankingTable");
+            const ranks = data.ranks;
+            ranks.forEach((rowData, index) => {
+                const row = rankingTable.insertRow(-1);
+
+                const rankCell = row.insertCell(0);
+                const nameCell = row.insertCell(1);
+                const countCell = row.insertCell(2);
+                const clearTimeCell = row.insertCell(3);
+
+                rankCell.textContent = index + 1;
+                nameCell.textContent = rowData.userName;
+                countCell.textContent = rowData.count;
+                clearTimeCell.textContent = new Date(rowData.clearTime).toLocaleString();
+            });
+        })
+        .catch(error => console.error('API 요청 중 오류 발생:', error));
+
+    // 뒤로가기 함수
+    function goBack() {
+        window.history.back();
+    }
+</script>
+
+</body>
+</html>

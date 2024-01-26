@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>숫자야구 - 결과</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('backGround2.png');
+            background-size: 80%;
+            background-repeat: no-repeat;
+            background-position: center center;
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: flex;
+            margin-right: 10px;
+        }
+
+        input[type="text"] {
+            width: 150px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        #rankingButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background-color: #2196F3;
+            margin-right: 10px;
+            /* 오른쪽 마진 추가 */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #rankingButton:hover {
+            background-color: #0b7dda;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>숫자야구 - 결과</h1>
+
+        <p id="playerNameDisplay"></p>
+
+        <div class="input-group">
+            <label for="guessInput">세 자리 숫자를 입력하세요:</label>
+            <input type="text" id="guessInput" maxlength="3">
+        </div>
+        <input type="submit" value="입력" onclick="checkGuess()">
+
+        <p id="resultDisplay"></p>
+
+        <button id="rankingButton" onclick="goToRankingPage()">랭킹 페이지로 이동</button>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const playerName = urlParams.get('playerName');
+
+        // 이름을 화면에 표시
+        const playerNameDisplay = document.getElementById('playerNameDisplay');
+        playerNameDisplay.textContent = `플레이어: ${playerName}`;
+
+        function checkGuess() {
+            const guess = document.getElementById('guessInput').value;
+            if (guess.length !== 3 || isNaN(guess)) {
+                alert('세 자리 숫자를 입력해주세요!');
+                return;
+            }
+
+            fetch("http://baseball-mungto.koyeb.app/baseball/try-numbers", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(
+                    {
+                        "name": playerName,
+                        "number": guess,
+                    }
+                ),
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        return response.json(); // JSON 데이터를 파싱하여 반환
+                    } else {
+                        throw new Error("서버에 문제가 발생했습니다."); // 에러 발생
+                    }
+                })
+                .then((data) => {
+                    const strikes = data.strike; // 서버에서 받은 데이터에서 strike 값을 가져옴
+                    const balls = data.ball; // 서버에서 받은 데이터에서 ball 값을 가져옴
+                    const tryCount = data.tryCount;
+                    const resultDisplay = document.getElementById('resultDisplay');
+                    if (strikes === 3) {
+                        resultDisplay.textContent = '정답입니다!';
+                        const inputButton = document.querySelector('input[type="submit"]');
+                        inputButton.value = '이름 입력 화면으로 돌아가기';
+                        inputButton.onclick = function () {
+                            window.location.href = 'inputName.html'; // 이름 입력 화면으로 이동
+                        };
+
+                    } else {
+                        resultDisplay.textContent = `${strikes} 스트라이크, ${balls} 볼 ${tryCount}번 시도중`;
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
+        // 랭킹 페이지로 이동하는 함수
+        function goToRankingPage() {
+            window.location.href = 'baseBallRank.html'; // 실제 랭킹 페이지 주소로 변경
+        }
+    </script>
+</body>
+
+</html>

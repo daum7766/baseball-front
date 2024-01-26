@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>숫자야구 - 이름 입력</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: relative; /* 부모 요소로부터 상대 위치 지정 */
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url('backGround.png'); /* 이미지 경로를 정확히 입력하세요. */
+      background-size: 60%; /* 배경 이미지 크기 조정 */
+      background-repeat: no-repeat;
+      background-position: center center; /* 배경 이미지를 가운데로 정렬 */
+      opacity: 0.5; /* 배경 이미지의 투명도 조절 */
+      z-index: -1; /* 가상 요소를 body 요소 뒤로 보냄 */
+    }
+
+    .container {
+      text-align: center;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      background-color: rgba(255, 255, 255, 0.8); /* 내부 컨테이너 배경 투명도를 조정합니다. */
+    }
+
+    form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-right: 20px; /* 오른쪽 마진 추가 */
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+      width: calc(100% - 20px); /* 오른쪽 마진을 고려하여 너비 조정 */
+      padding: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    input[type="submit"] {
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+
+    .btn-center {
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+    <div> <!-- 중앙 정렬을 위한 추가된 div -->
+        <h1>숫자야구 - 참여자 이름 입력</h1>
+        <form id="nameForm" onsubmit="startGame(event)">
+          <label for="playerName">참여자 이름: </label>
+          <input type="text" id="playerName" name="playerName" required>
+          <div class="btn-center">
+            <input type="submit" value="시작하기">
+          </div>
+        </form>
+      </div>
+  <script>
+    function startGame(event) {
+      event.preventDefault(); // 기본 제출 동작 방지
+      const playerName = document.getElementById('playerName').value;
+      if (playerName.trim() !== '') {
+        // 이름을 입력받아 숫자 입력 페이지로 이동
+
+        fetch("http://baseball-mungto.koyeb.app/baseball/start", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(
+            {
+              "name": playerName,
+            }
+          ),
+        })
+          .then((response) => {
+            if (response.status === 200) {
+              // 페이지 이동
+              window.location.href = "findAnswer.html?playerName=" + playerName;
+            } else {
+              // 이름을 다시 작성하라는 알림
+              alert("이름을 다시 작성해주세요!");
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      } else {
+        alert('이름을 입력해주세요!');
+      }
+    }
+  </script>
+</body>
+</html>
